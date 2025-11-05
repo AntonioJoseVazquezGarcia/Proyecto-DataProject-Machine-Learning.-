@@ -14,7 +14,7 @@ El objetivo principal de este proyecto es analizar el rendimiento académico de 
 | Archivo | Descripción |
 | :--- | :--- |
 | `README.md` | Documentación principal del proyecto. |
-| `[Tu Script Principal].py` | Script de Python que contiene todo el flujo de trabajo: preprocesamiento, entrenamiento de modelos y generación del reporte final. |
+| `11.ProyectoML.py` | Script de Python que contiene todo el flujo de trabajo: preprocesamiento, entrenamiento de modelos y generación del reporte final. |
 | `dataset_estudiantes.csv` | Conjunto de datos original utilizado para el entrenamiento. |
 | `resultados_proyecto_ia.html` | **Infografía de Resultados Finales:** Archivo HTML generado automáticamente por el script de Python, que visualiza las métricas clave de ambos modelos. |
 
