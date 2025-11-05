@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto IA/ML: Rendimiento Estudiantil</title>
+    
+    <style>
+        /* INICIO DEL CÓDIGO CSS */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        header p {
+            margin-top: 5px;
+            font-size: 1.1em;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            padding: 40px 20px;
+            gap: 30px;
+        }
+
+        .card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 45%;
+            min-width: 350px;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .regression {
+            border-top: 5px solid #28a745; /* Verde para Regresión */
+        }
+
+        .classification {
+            border-top: 5px solid #ffc107; /* Amarillo para Clasificación */
+        }
+
+        .card h2 {
+            color: #007bff;
+            margin-top: 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .card .description {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .metrics {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            width: 48%;
+        }
+
+        .metric-item h3 {
+            margin: 0 0 5px 0;
+            font-size: 0.9em;
+            color: #007bff;
+        }
+
+        .metric-item .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Estilos de Coeficientes */
+        .feature-importance h3 {
+            color: #333;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .feature-importance ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-importance li {
+            padding: 8px 0;
+            border-bottom: 1px dotted #eee;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.05em;
+        }
+
+        .feature-importance li:last-child {
+            border-bottom: none;
+        }
+
+        .coefficient-value {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        /* Estilos de Clasificación */
+        .classification-report {
+            margin-top: 20px;
+        }
+
+        .report-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dotted #eee;
+            font-size: 1.05em;
+        }
+
+        .f1-value {
+            font-weight: bold;
+            color: #ffc107;
+        }
+
+        /* Matriz de Confusión */
+        #confusion_matrix {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        #confusion_matrix th, #confusion_matrix td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #confusion_matrix th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #confusion_matrix td {
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+        /* FIN DEL CÓDIGO CSS */
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🎓 Análisis Predictivo del Rendimiento Estudiantil</h1>
+        <p>Preprocesamiento, Regresión Lineal y Regresión Logística</p>
+    </header>
+
+    <div class="container">
+        <section class="card regression">
+            <h2>Modelo 1: Regresión Lineal (Nota Final)</h2>
+            <p class="description">Predice la nota continua (0-100).</p>
+            <div class="metrics">
+                <div class="metric-item">
+                    <h3>R² (Varianza Explicada)</h3>
+                    <p id="r2_score" class="value">Cargando...</p>
+                </div>
+                <div class="metric-item">
+                    <h3>Error Cuadrático Medio (MSE)</h3>
+                    <p id="mse_score" class="value">Cargando...</p>
+                </div>
+            </div>
+            <div class="feature-importance">
+                <h3>Factores Clave (Top 5 Coeficientes)</h3>
+                <ul id="reg_coefficients"><li>Cargando...</li></ul>
+            </div>
+        </section>
+
+        <section class="card classification">
+            <h2>Modelo 2: Regresión Logística (Aprobado/Suspenso)</h2>
+            <p class="description">Clasifica si el alumno aprueba (1) o suspende (0).</p>
+            <div class="metrics">
+                <div class="metric-item">
+                    <h3>Precisión General (Accuracy)</h3>
+                    <p id="accuracy_score" class="value">Cargando...</p>
+                </div>
+                <div class="metric-item confusion-matrix-container">
+                    <h3>Matriz de Confusión</h3>
+                    <table id="confusion_matrix"></table>
+                </div>
+            </div>
+            <div class="classification-report">
+                <h3>Detalle de Clases (F1-Score)</h3>
+                <div class="report-detail">
+                    <p>Clase 0 (Suspenso) - F1:</p> <span id="f1_0" class="f1-value">Cargando...</span>
+                </div>
+                <div class="report-detail">
+                    <p>Clase 1 (Aprobado) - F1:</p> <span id="f1_1" class="f1-value">Cargando...</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        /* INICIO DEL CÓDIGO JAVASCRIPT */
+        // --- DATOS INYECTADOS POR PYTHON ---
+        const MODEL_RESULTS = {
+    "regression": {
+        "R2": 0.35,
+        "MSE": 52.95,
+        "coefficients": [
+            {
+                "name": "nota_anterior",
+                "value": 2.35
+            },
+            {
+                "name": "horas_estudio_semanal",
+                "value": 3.48
+            },
+            {
+                "name": "tasa_asistencia",
+                "value": 1.76
+            },
+            {
+                "name": "estilo_aprendizaje_Kinest\u00e9sico",
+                "value": 1.19
+            },
+            {
+                "name": "estilo_aprendizaje_Lectura/Escritura",
+                "value": 0.87
+            }
+        ]
+    },
+    "classification": {
+        "accuracy": 0.91,
+        "conf_matrix": [
+            [
+                3,
+                17
+            ],
+            [
+                1,
+                179
+            ]
+        ],
+        "f1_score": {
+            "class_0": 0.25,
+            "class_1": 0.95
+        }
+    }
+};
+
+        function displayResults() {
+            const regResults = MODEL_RESULTS.regression;
+            const clasResults = MODEL_RESULTS.classification;
+
+            // --- 1. Regresión Lineal ---
+            document.getElementById('r2_score').textContent = regResults.R2.toFixed(3);
+            document.getElementById('mse_score').textContent = regResults.MSE.toFixed(2);
+
+            const coefList = document.getElementById('reg_coefficients');
+            coefList.innerHTML = ''; // Limpiar
+            regResults.coefficients.forEach(item => {
+                const li = document.createElement('li');
+                const valueSpan = document.createElement('span');
+                
+                // Asignar color basado en si el coeficiente es positivo o negativo
+                valueSpan.className = 'coefficient-value';
+                valueSpan.style.color = item.value >= 0 ? '#28a745' : '#dc3545'; // Verde para positivo, Rojo para negativo
+
+                valueSpan.textContent = item.value.toFixed(2);
+                li.innerHTML = `${item.name}: `;
+                li.appendChild(valueSpan);
+                coefList.appendChild(li);
+            });
+
+            // --- 2. Regresión Logística ---
+            document.getElementById('accuracy_score').textContent = clasResults.accuracy.toFixed(3);
+            document.getElementById('f1_0').textContent = clasResults.f1_score.class_0.toFixed(2);
+            document.getElementById('f1_1').textContent = clasResults.f1_score.class_1.toFixed(2);
+
+            // Matriz de Confusión (Generación de tabla)
+            const matrixTable = document.getElementById('confusion_matrix');
+            matrixTable.innerHTML = `
+                <tr>
+                    <th></th>
+                    <th>Predicho: 0 (Suspenso)</th>
+                    <th>Predicho: 1 (Aprobado)</th>
+                </tr>
+                <tr>
+                    <th>Real: 0 (Suspenso)</th>
+                    <td>${clasResults.conf_matrix[0][0]} (VN)</td>
+                    <td>${clasResults.conf_matrix[0][1]} (FP)</td>
+                </tr>
+                <tr>
+                    <th>Real: 1 (Aprobado)</th>
+                    <td>${clasResults.conf_matrix[1][0]} (FN)</td>
+                    <td>${clasResults.conf_matrix[1][1]} (VP)</td>
+                </tr>
+            `;
+        }
+
+        // Ejecutar la función al cargar la página
+        window.onload = displayResults;
+        /* FIN DEL CÓDIGO JAVASCRIPT */
+    </script>
+</body>
+</html>
